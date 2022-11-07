@@ -51,6 +51,16 @@ class Counter extends Thread {
          * increase the value of the shared count by one
          */
         int oldCount = count.getCount();
+        // UPDATE: Alla oleva sleep ei ole oleellinen tehtävän kannalta
+        // mutta voit lisätä kilpailutilanteen todennäköisyyttä poistamalla
+        // siitä kommentit, mikäli jostain syystä et saa sitä muuten ilmentymään
+        /*
+        try {
+			Thread.sleep((long) (100 * Math.random()));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        */
         count.setCount(oldCount + 1);
     }
 }
