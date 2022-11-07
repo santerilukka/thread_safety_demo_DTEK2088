@@ -9,7 +9,7 @@ public class App1 {
         Count sharedCount = new Count();
 
         // Luodaan ja käynnistetään threadCount verran laskijasäikeitä
-        int threadCount = 20000;
+        int threadCount = 20000; // Jos käytät alla esiteltyä sleep-kikkaa, kannattanee vähentää säikeiden määrä esim pariin sataan
         List<Counter> counters = Stream.generate(() -> new Counter(sharedCount)).limit(threadCount).toList();
         counters.forEach(c -> c.start());
         counters.forEach(c -> {
@@ -54,6 +54,7 @@ class Counter extends Thread {
         // UPDATE: Alla oleva sleep ei ole oleellinen tehtävän kannalta
         // mutta voit lisätä kilpailutilanteen todennäköisyyttä poistamalla
         // siitä kommentit, mikäli jostain syystä et saa sitä muuten ilmentymään
+        // Kun käytät alla olevaa sleep-kikkaa, kannattaa säikeiden määrä pienentää vaikka 200:aan
         /*
         try {
 			Thread.sleep((long) (100 * Math.random()));
