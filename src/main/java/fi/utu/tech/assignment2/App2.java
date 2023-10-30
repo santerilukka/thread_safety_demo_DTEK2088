@@ -8,10 +8,10 @@ public class App2 {
 
     public static void main(String[] args) {
         List<Integer> sharedList = new ArrayList<>();
-
-        // Luodaan ja käynnistetään threadCount verran laskijasäikeitä
-        int threadCount = 20000;
-        List<ListEditor> counters = Stream.generate(() -> new ListEditor(sharedList)).limit(threadCount).toList();
+        // Luodaan ja käynnistetään threadCount verran laskijasäikeitä, jotka jokainen lisäävät addCount verran alkioita listaan
+        int threadCount = 100;
+        int addCount = 1000;
+        List<ListEditor> counters = Stream.generate(() -> new ListEditor(sharedList, addCount)).limit(threadCount).toList();
         counters.forEach(c -> c.start());
         counters.forEach(c -> {
             try {
@@ -21,7 +21,7 @@ public class App2 {
             }
         });
          
-        System.out.printf("Got %d, expected %d%n", sharedList.size(), threadCount);
+        System.out.printf("Got %d, expected %d%n", sharedList.size(), threadCount*addCount);
     }
 }
 
@@ -29,13 +29,17 @@ public class App2 {
 class ListEditor extends Thread {
 
     List<Integer> l;
+    private final int count;
 
-    public ListEditor(List<Integer> l) {
+    public ListEditor(List<Integer> l, int count) {
         this.l = l;
+        this.count = count;
     }
 
     @Override
     public void run() {
-        l.add(123);
+        for (int i=0; i<count;i++) {
+            l.add(123);
+        }
     }
 }
