@@ -44,6 +44,10 @@ public class App3 {
             }
         }
         // Informoidaan kirjuria, että uusia palautuksia ei pitäisi enää tulla
+        // Huomaa, että jossain tapauksissa kirjuri ei välttämättä kerkeä käsittelemään
+        // kaikkia jonoon lisättyjä töitä ennen interruptia.
+        // Tätä ongelmaa ei tarvitse kuitenkaan työssä ratkaista, mutta voit ottaa sen
+        // vapaaehtoiseksi lisätehtäväksi
         studyRegistrar.interrupt();
     }
 }

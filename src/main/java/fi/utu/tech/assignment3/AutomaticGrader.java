@@ -19,6 +19,9 @@ public class AutomaticGrader extends Thread {
      * @param gradedSubmissions Reference to a shared list where all the graded submissions will be added
      */
     public AutomaticGrader(List<Submission> ungradedSubmissions, List<Submission> gradedSubmissions) {
+        super();
+        // Set a more descriptive name for grader threads
+        setName("Grader" + getName());
         this.ungradedSubmissions = ungradedSubmissions;
         this.gradedSubmissions = gradedSubmissions;
     }
@@ -29,7 +32,11 @@ public class AutomaticGrader extends Thread {
     @Override
     public void run() {
         for (var s : ungradedSubmissions) {
-            gradedSubmissions.add(grade(s));
+            try {
+                gradedSubmissions.add(grade(s));
+            } catch (InterruptedException e) {
+                System.out.println("Who dared to interrupt my grading?!");
+            }
         }
 
     }
@@ -39,12 +46,8 @@ public class AutomaticGrader extends Thread {
      * @param s Submission to be graded
      * @return The graded submission
      */
-    public Submission grade(Submission s) {
-        try {
-            Thread.sleep(s.getDifficulty());
-        } catch (InterruptedException e) {
-            System.err.println("Who dared to interrupt my sleep?!");
-        }
+    public Submission grade(Submission s) throws InterruptedException {
+        Thread.sleep(s.getDifficulty());
         return s.grade(rnd.nextInt(6));
     }
 

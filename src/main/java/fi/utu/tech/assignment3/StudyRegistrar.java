@@ -2,7 +2,6 @@ package fi.utu.tech.assignment3;
 
 import java.util.List;
 
-
 public class StudyRegistrar extends Thread {
 
     private List<Submission> submissionQueue;
@@ -10,16 +9,22 @@ public class StudyRegistrar extends Thread {
     private String courseCode;
 
     public StudyRegistrar(List<Submission> gradedSubmissions, List<StudyRecord> finalGrades, String courseCode) {
+        super("RegistrarThread");
         submissionQueue = gradedSubmissions;
         this.finalGrades = finalGrades;
         this.courseCode = courseCode;
     }
 
     public void run() {
-        while (true) {
-            var s = submissionQueue.remove(0);
-            addToStudyRegistery(s.getGrade(), s.getSubmittedBy());
-
+        try {
+            while (true) {
+                if (interrupted())
+                    throw new InterruptedException();
+                var s = submissionQueue.remove(0);
+                addToStudyRegistery(s.getGrade(), s.getSubmittedBy());
+            }
+        } catch (InterruptedException e) {
+            System.out.println("Interrupt received, no new submissions should be coming");
         }
     }
 
