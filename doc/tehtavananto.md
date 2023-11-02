@@ -16,7 +16,7 @@ Vinkki: Lopullinen lukuarvo tulostusta varten luetaan pääsäikeestä käsin, j
 Huom! Boksin ulkopuolelta ajatteleville tiedoksi: Ratkaisu, jossa jokainen säie asettaa arvoksi 100 ei ole hyväksyttävä ratkaisu.
 
 ### Tehtävä 2 - Lista
-Tehtävässä 2 on melko lailla sama rakenne kuin tehtävässä 1. Erona on, että säikeistä (oletus 100 kpl) jokainen haluaa lisäillä samaan listaan luvun 123 muuttujan `addCount` verran (oletuksena 1000) ja täten lopuksi listassa tulisi `100*1000 = 10 000`. Näin ei kuitenkaan ole. Ratkaise ongelma jälleen siten, että samanaikaisista säikeistä riippumatta listaan tulee oikea määrä lukuja.
+Tehtävässä 2 on melko lailla sama rakenne kuin tehtävässä 1. Erona on, että säikeistä (oletus 100 kpl) jokainen haluaa lisäillä samaan listaan luvun 123 muuttujan `addCount` verran (oletuksena 1000) ja täten lopuksi listassa tulisi `100*1000 = 100 000`. Näin ei kuitenkaan ole. Ratkaise ongelma jälleen siten, että samanaikaisista säikeistä riippumatta listaan tulee oikea määrä lukuja.
 
 ### Tehtävä 3 - Roboassarit
 On vuosi 2100 ja assarit on korvattu automaattitarkastajilla, joita kuvaa ohjelmassamme `AutomaticGrader`-luokan säieoliot. Näille automaattitarkastajille voidaan antaa lista tarkistettavia tehtäviä (`Submission`) ja ne tarkistavat annetut tehtävät automaattisesti käyttäen samaa algoritmia kuin viime viikon demoissakin käytettiin (arvosana arvotaan). Kun tarkistus on suoritettu, lisää automaattitarkastaja arvioidun palautuksen yhteiseen `gradedSubmissions` -listaan, joka on siis **jaettu kaikkien muidenkin automaattitarkastajasäieolioiden kesken**.
@@ -29,7 +29,7 @@ Kyseessä on siis eräänlainen tuottaja -- kuluttaja -ongelma, jossa n kappalet
 List<Submission> gradedSubmissions = new ArrayList<Submission>(30);
 ```
 
-Tämä ei tietenkään toimi, sillä ensinnäkään `ArrayList` ei ole säieturvallinen ja toiseksi listan kokoa ei olla rajoitettu, jolloin suurella määrällä automaattitarkastajia, lista täyttyy koko ajan nopeammin, mitä kirjuri ehtii opintorekisteriin kirjaamaan, kunnes tietokoneesta lopulta loppuu muisti. Tarkastajat eivät saisi siis täyttää puskuria äärettömästi. Ja vastavuoroisesti kirjurikaan ei saisi kaatua tyhjää tietorakennetta raapiessa.
+Tämä ei tietenkään toimi, sillä ensinnäkään `ArrayList` ei ole säieturvallinen ja toiseksi listan kokoa ei olla rajoitettu (ArrayListin parametri on vain *aloituskoko*), jolloin suurella määrällä automaattitarkastajia, lista täyttyy koko ajan nopeammin, mitä kirjuri ehtii opintorekisteriin kirjaamaan, kunnes tietokoneesta lopulta loppuu muisti. Tarkastajat eivät saisi siis täyttää puskuria äärettömästi. Ja vastavuoroisesti kirjurikaan ei saisi kaatua tyhjää tietorakennetta raapiessa.
 
 Tehtäväsi on selvittää, minkälainen tietorakenne sopisi em. puskuriksi paremmin, vaihtaa  `gradedSubmission` käyttämään kyseistä tietorakennetta ja muokata tarvittavat osat ohjelmasta toimimaan uuden tietorakenteen kanssa. Tietorakenteen pitäisi olla säieturvallinen ja kokorajoitettu (ts. automaattitarkistajat jäävät odottamaan, mikäli tietorakenne on "täynnä"). Sinun ei tarvitse itse toteuttaa kyseistä tietorakennetta, **eikä** käyttää matalan tason säiemekanismeja (esim. wait ja notify).
 
