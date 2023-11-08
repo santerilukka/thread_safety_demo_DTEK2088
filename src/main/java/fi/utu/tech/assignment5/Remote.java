@@ -29,6 +29,7 @@ public class Remote extends Thread {
             switch (nextAction) {
                 case TURNOFF:
                     hub.turnOffLight(id);
+                    break;
                 case TOGGLE:
                     hub.toggleLight(id);
                     break;

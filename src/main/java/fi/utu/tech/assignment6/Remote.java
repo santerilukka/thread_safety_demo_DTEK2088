@@ -25,10 +25,16 @@ public class Remote extends Thread {
             int next = rnd.nextInt(Action.values().length);
             Action nextAction = Action.values()[next];
             List<Integer> lightIds = new ArrayList<>(hub.getLightIds());
-            int id = lightIds.get(rnd.nextInt(lightIds.size()));
+            int id = 0;
+            if (lightIds.size()>0) {
+                id = lightIds.get(rnd.nextInt(lightIds.size()));
+            } else {
+                nextAction = Action.ADD;
+            }
             switch (nextAction) {
                 case TURNOFF:
                     hub.turnOffLight(id);
+                    break;
                 case TOGGLE:
                     hub.toggleLight(id);
                     break;
