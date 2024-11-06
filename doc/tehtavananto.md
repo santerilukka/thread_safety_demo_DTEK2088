@@ -1,10 +1,10 @@
 # Tehtävänanto DEMO2
 
 ## Oppimistavoitteet
-Säieturvallisuus, kriittinen alue, synkronointi (mutexit ja monitorit), kilpailutilanteet ja lukkiumatilanteet.
+Säieturvallisuus, kriittinen alue, synkronointi (mutexit ja monitorit), säiesignalointi, kilpailutilanteet ja lukkiumatilanteet.
 
 ## Yleiset ohjeet
-Demokerran tehtävät tulisi tehdä niille varattuihin kansioihin (hakemistopuussa src/main alla olevat kansiot): eli siis tämän viikon ensimmäinen harjoitus tulisi tehdä kansioon "assignment1" ja toinen harjoitus kansioon "assignment2" jne. **Tämän viikon tehtävät ovat pääasiassa suoritettavissa toisistaan riippumattomasti**. Ainoastaan tehtävä 6 vaatii tehtävän 5 ratkaisemista, muutoin tehtävien tekojärjestyksellä ei ole merkitystä.
+Demokerran tehtävät tulisi tehdä niille varattuihin kansioihin (hakemistopuussa src/main alla olevat kansiot): eli siis tämän viikon ensimmäinen harjoitus tulisi tehdä kansioon "assignment1" ja toinen harjoitus kansioon "assignment2" jne. **Tämän viikon tehtävät ovat suoritettavissa toisistaan riippumattomasti**, eli tehtävien tekojärjestyksellä ei ole merkitystä, mutta ne ovat joko haastavampia tai laajempia loppua kohden.
 
 ## Tehtävät
 
@@ -38,7 +38,15 @@ Vinkkejä:
  - Sivulta <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/package-summary.html> voisi löytyä sopivia tietorakenteita...
  - Myös tuottaja--kuluttaja -esimerkistä voisi ottaa oppia: <https://gitlab.utu.fi/tech/education/distributed-systems/ProducerConsumer/>
 
-### Tehtävä 4 - Progressio toiseen potenssiin
+
+### Tehtävä 4 - Kaikkien janoisten sankari
+Erinäisissä opiskelijatapahtumissa on usein tarjolla mitä erilaisimpia booleja, joiden sisältö vaihtelee boolinvalmistajan taidon sekä kaapista löytyvien raaka-aineiden mukaan. Tehtävässämme on nyt yksi boolivastaava, joka tekee booleja sitä mukaa kun opiskelijat niitä juovat. Opiskelijat ovat tehtävässämme hyvin janoisia, tai boolit hyvin pieniä koska yksi opiskelija juo aina yhden kokonaisen boolin kerrallaan. Boolivastaavan täytyy valmistaa uusi booli heti kun edellinen on nautittu loppuun sekä *ilmoittaa* boolin valmistumisesta: vuoroansa *odottavia* opiskelijoita kun ei kannata pitää odotuksessa. Boolikulhomme on tässä tehtävässä jaettu resurssi: emme haluaisi, että siitä hörpitään usean opiskelijan toimesta samanaikaisesti kun boolivastaava valmistaa siihen seuraavaa taidonnäytettään. Tämän vuoksi eri tahojen pääsy kulhoon tapahtuu vain synkronoitujen metodien kautta, mikä ratkaisee samanaikaisuuden ongelman.
+
+Ongelmana on nyt vain se, että opiskelijat kärkkyvät kerta toisensa jälkeen kulhoa, joka saattaa olla joko täynnä boolivastaavan parhainta tai huonossa tapauksessa typösen tyhjä. Boolivastaava puolestaan ei tunnu ymmärtävän, että boolikulhossa ei saa olla vanhaa juomaa uutta satsia kaataessa -- liekö boolivastaava maistanut omia tuotoksiaan? Mikäli booliastia on tyhjä, pettyy opiskelija ja poistuu juhlapaikalta yritettyään juoda tyhjästä kulhosta. Jos taas boolivastaava kaataa täyteen kulhoon juomaa, tulvii astia syntynyttä toisen asteen boolia.
+
+Muokkaa boolikulhon synkronoituja metodeita siten, että juomista yrittävä opiskelija odottaa kunnes booliastiassa on juomaa ja boolivastaava puolestaan ei täytä kulhoa yli äyräittensä. Ratkaisussa tulisi käyttää **vartiointilohkoja** sekä **säiesignalointia**.
+
+### Tehtävä 5 - Progressio toiseen potenssiin
 Valtio on päättänyt tasoittaa tuloeroja määräämällä lain, jossa tilisiirtoja voidaan tehdä ainoastaan tilanteessa, jossa lähdetilille jää yli 0 euroa ja kohdetilillä on siirron jälkeen maksimissaan 1000 euroa. Koska siirtoja tehdään useita samanaikaisesti samoille tileillekin, täytyy molemmat tilit (lähde ja kohde) lukita tilisiirron ajaksi. Muutenhan "katetarkistuksen" ja oikean tilisiirron välissä voisi joku toinen tilisiirtotapahtuma tehdä oman siirtonsa ja tilisiirto voisi olla laiton.
 
 `BankTransfer`-luokan oliot vastaavat yksittäisistä tilisiirtotapahtumista. On tämän luokan vastuulla lukita molemmat tilit (joita kuvaavat luokan `Account` oliot), varmistaa tilisiirron "laillisuus" ja lopulta tehdä tilisiirto. Nykyisessä implementaatiossa on tosin jokin bugi, sillä vaikka tilisiirtoja pitäisi tapahtua jatkuvalla syötöllä, muutaman samanaikaisen tilisiirron alettua, yksikään tilisiirto ei enää mene läpi.
@@ -48,9 +56,9 @@ b. Pystytkö korjaamaan `BankTransfer`-luokan siten, että tilisiirrot eivät j�
 
 Yritä keksiä tehtävään (b) ratkaisu, mutta suoritukseksi riittää, että olet tehnyt kohdan (a) ja pohtinut kohtaa (b), vaikket olisikaan löytänyt täydellistä ratkaisua.
 
-### Tehtävä 5 - Lamppukeskitin
 
-Tehtävässä 5 simuloidaan eräänlaista älyvalaisimien keskitinlaitetta. Tehtäväpohjassa on valmiiksi annettuna kaikki tähän tarvittavat luokat, jotka esitellään seuraavaksi:
+### Tehtävä 6 - Lamppukeskitin
+Tässä tehtävässä simuloidaan eräänlaista älyvalaisimien keskitinlaitetta. Tehtäväpohjassa on valmiiksi annettuna kaikki tähän tarvittavat luokat, jotka esitellään seuraavaksi:
 
 #### Light
 Kuvaa yksittäistä älyvalaisinta, jonka voi kytkeä päälle tai pois joko käskemällä suoraan tai käyttämällä toggle-metodia, joka tekee jomman kumman riippuen valaisimen nykytilasta. Valaisimelta voi myös kysyä, onko se päällä.
@@ -62,10 +70,3 @@ Itse valaisinkeskitin, johon kaikki valaisimet ovat liitettyinä. Kaikkia valais
 Säikeessä ajettavat Remote-oliot simuloivat kaukosäätimiä, joilla valaisimia voi ohjata. Kaukosäätimiä voi olla useita yhtä keskitintä kohden ja ne saattavat samanaikaisesti ohjata samaa keskitintä ja samoja lamppuja. Kaukosäätimet pääsevät ohjaamaan keskitintä siten, että kaukosäätimille annetaan viittaus keskitinolioon.
 
 Tehtäväsi on tutkia annettua ohjelmaa ja tunnistaa ns. kriittiset alueet, joissa useat säikeet koskevat samanaikaisesti samoihin muistirakenteihin ja yrittää suojata näitä samanaikaisuuden aiheuttamilta ongelmilta käyttämällä tarvittaessa säieturvallisia rakenteita ja synkronointilohkoja.
-
-### Tehtävä 6 - Advanced lamppukeskitin
-Tehtävä 6 rakentuu tehtävän 5 päälle. **Älä** kuitenkaan kopioi tehtävän 5 ratkaisua suoraan tehtävän 6 päälle, sillä tehtävässä 6 on muokattu luokkia `Hub` ja `Remote` siten, että kaukosäätimien on mahdollista myös poistaa valaisimia keskittimestä. Tämä aiheuttanee uudenlaisia samanaikaisuuteen liittyviä ongelmia, jotka olisi tämän tehtävän aikana ratkottava. Voit kuitenkin lähteä siitä, että lisäät tehtävän 6 pohjaan edellisessä tehtävässä löytämäsi ratkaisumallit.
-
-Tehtävä 6 saattaa olla hivenen hankalampi ratkaista kuin tehtävä 5. Käyttämällä synkronointilohkoja, on periaatteessa mahdollista ratkaista ongelma. Toki riippuen ratkaisutavasta, tämä saattaa vähentää ohjelman samanaikaisuutta. Synkronointilohkojen käyttäminen ja samanaikaisuuden uhraaminen on tässä tehtävässä toki hyväksyttävää ja vaikka et saisi ongelmaa täysin ongelmitta ratkottua, voinet silti merkata tehtävän ratkaisuksi, mikäli osaat perustella ratkaisusi ja kertoa, mitä ongelmia ratkaisussasi on.
-
-Vinkki: Eräs tapa ratkoa ongelma, on käyttää <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/locks/ReadWriteLock.html>

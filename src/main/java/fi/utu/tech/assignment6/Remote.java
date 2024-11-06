@@ -9,7 +9,7 @@ public class Remote extends Thread {
     private Hub hub;
 
     private enum Action {
-        TURNOFF, TURNON, TOGGLE, TURNOFFALL, TURNONALL, REMOVE, ADD
+        TURNOFF, TURNON, TOGGLE, TURNOFFALL, TURNONALL, ADD
     };
 
     private Random rnd = new Random();
@@ -25,12 +25,7 @@ public class Remote extends Thread {
             int next = rnd.nextInt(Action.values().length);
             Action nextAction = Action.values()[next];
             List<Integer> lightIds = new ArrayList<>(hub.getLightIds());
-            int id = 0;
-            if (lightIds.size()>0) {
-                id = lightIds.get(rnd.nextInt(lightIds.size()));
-            } else {
-                nextAction = Action.ADD;
-            }
+            int id = lightIds.get(rnd.nextInt(lightIds.size()));
             switch (nextAction) {
                 case TURNOFF:
                     hub.turnOffLight(id);
@@ -46,9 +41,6 @@ public class Remote extends Thread {
                     break;
                 case TURNONALL:
                     hub.turnOnAllLights();
-                    break;
-                case REMOVE:
-                    hub.removeLight(id);
                     break;
                 case ADD:
                     hub.addLight();

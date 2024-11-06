@@ -27,16 +27,6 @@ public class Hub implements Runnable {
         return id;
     }
 
-    public void removeLight(int id) {
-        // Täytyy tarkistaa, onko arvo vielä olemassa,
-        // sillä joku saattoi lukulukosta kirjoituslukkoon vaihtamisen
-        // aikana poistaa saman avaimen
-        if (lights.containsKey(id)) {
-            lights.remove(id);
-        }
-
-    }
-
     public void toggleLight(int id) {
         Light l = lights.get(id);
         l.toggle();

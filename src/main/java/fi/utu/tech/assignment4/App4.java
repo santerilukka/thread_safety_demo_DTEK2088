@@ -1,187 +1,93 @@
 package fi.utu.tech.assignment4;
 
-import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class App4 {
-    // Huom! Main-metodiin ei pitäisi tarvita tehdä muutoksia!
-    // Main-metodi ainoastaan luo tilit ja alkaa tekemään samanaikaisia tilisiirtoja
-    // sekä lopuksi varmistaa, että laittomuuksia ei tapahtunut
+
     public static void main(String[] args) {
-        System.out.println("Press Ctrl+C to terminate");
-        Random rnd = new Random();
+        Boolikulho kulho = new Boolikulho();
 
-        // Montako tiliä luodaan
-        int accountCount = 40;
-
-        // Montako tilisiirtoa tehdään
-        int transfers = 100;
-
-
-        // Luodaan tilit ja annetaan starttirahaa
-        Account[] accounts = new Account[accountCount];
-        for (int i = 0; i < accounts.length; i++) {
-            accounts[i] = new Account(rnd.nextInt());
-            accounts[i].deposit(rnd.nextDouble(500));
+        // Käynnistetään säikeet
+        new Boolivastaava(kulho).start();
+        for (int i=0; i<Boolivastaava.booliReseptit.length; i++) {
+            new Opiskelija(kulho).start();
         }
-        System.out.println("=========== Accounts created ===========");
-        // ExecutorService tilisiirtojen suorittamista varten. Blokkaa, mikäli jono tulee täyteen.
-        ExecutorService transferExecutor = new ThreadPoolExecutor(40,
-                40,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(50),
-                new ThreadPoolExecutor.CallerRunsPolicy());
+    }
 
-        // Tehdään ja suoritetaan tilisiirtotapahtumia niin kauan kunnes ohjelma suljetaan
-        for (int i = 0; i < transfers; i++) {
-            var from = accounts[rnd.nextInt(accounts.length)];
-            var to = accounts[rnd.nextInt(accounts.length)];
-            var bt = new BankTransfer(from, to, rnd.nextDouble(500.0));
-            transferExecutor.execute(bt);
-        }
+}
 
+
+class Boolikulho {
+
+    private String booli;
+    private boolean booliValmis = false;
+
+    public synchronized void valmistaBooli(String boolinNimi) {
         /* 
-         * Alapuolella tarkastetaan tilien loppusaldot, jotta
-         * saadaan vihiä ratkaisun toimivuudesta.
-         * Huom! Kilpailutilanteet johtuen luonteestaan,
-         * eivät tapahdu joka ajokerralla.
+         * Ennen kuin boolimaljaan alkaa tekemään mitään,
+         * voi olla hyvä idea odottaa sen tyhjenemistä...
          */
 
-         try {
-            transferExecutor.shutdown();
-            transferExecutor.awaitTermination(1, TimeUnit.HOURS);
-        } catch (InterruptedException ie) {
-            System.out.println("Interrupted!");
-        }
 
-        System.out.println("------ KAIKKI TILISIIRROT TEHTY ------");
-        for (int k = 0; k < accounts.length; k++) {
-            if (accounts[k].getBalance() <= 0 || accounts[k].getBalance() > 1000) {
-                System.out.printf("Tilillä %d laiton balanssi: %f %n", accounts[k].accountNumber,
-                        accounts[k].getBalance());
-            }
+        if (booliValmis) {
+            booli = booli + ", " + boolinNimi;
+            System.out.printf("Boolimalja tulvii juomia %s!%n", booli);
+        } else {
+            this.booli = boolinNimi;
+            booliValmis = true; // Boolivastaava täyttää booliastian
+            System.out.println("Booli valmis: " + booli);
         }
+    }
 
+    public synchronized void juoBooli(String juoja) {
+        /*
+         * Ennen kuin boolimaljasta juodaan mitään,
+         * kannattaa odottaa, että sinne ilmestyy jotain...
+         */
+
+        if (!booliValmis) {
+            System.out.println(juoja + " sai käteensä tyhjän boolimaljan");
+        } else {
+            booliValmis = false; // Opiskelija juo boolin
+            System.out.println(juoja + " nautti boolin " + booli);
+        }
 
     }
 
 }
 
-/**
- * Tilisiirtoa kuvaava luokka
- */
-class BankTransfer implements Runnable {
+// Alla oleviin luokkiin ei tule tai tarvitse koskea
 
-    private Account from;
-    private Account to;
-    private double amount;
-    private Random rnd;
+class Opiskelija extends Thread {
 
+    private Boolikulho kulho;
+    private String nimi;
 
-    /**
-     * 
-     * @param from Tili, jolta siirretään
-     * @param to Tili, jolle siirretään
-     * @param amount Rahamäärä, joka siirretään
-     */
-    public BankTransfer(Account from, Account to, double amount) {
-        this.from = from;
-        this.to = to;
-        this.amount = amount;
-        this.rnd = new Random();
+    public Opiskelija(Boolikulho kulho) {
+        this.kulho = kulho;
+        this.nimi = NameGenerator.nextName();
     }
 
-    /**
-     * Tilisiirron suorittava metodi. Lukitsee lähde- ja kohdetilin säikeelle eksklusiivisesti.
-     */
     @Override
     public void run() {
-        // Lukitan 1. tili
-        synchronized (from) {
-            // Lukko ensimmäiseen tiliin saatu, aloitetaan toisen tilin lukitus
-            synchronized (to) {
-                // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja suoritetaan siirto,
-                // jos lakiehdot täyttyvät
-                if ((from.getBalance() - amount) > 0 && (to.getBalance() + amount) <= 1000) {
-                    /*
-                     * Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä
-                     * yli lain rajojen kilpailutilanteen sattuessa. Lukot estävät sen tällä hetkellä.
-                     * Alla oleva sleep tekee kilpailutilanteista todennäköisempiä, siltä varalta,
-                     * että ratkaisunne aiheuttaa niitä. 
-                     * Sleepin poistaminen vähentää kilpailutilanteen riskiä, mutta
-                     * ei silti poista sen teoreettista mahdollisuutta ilmaantua.
-                     */ 
-                    try {Thread.sleep(rnd.nextInt(500));} catch (InterruptedException ie) {}
-                    // Tehdään aktuaalinen tilisiirto
-                    from.withdraw(amount);
-                    to.deposit(amount);
-                }
-            }
-        }
-        // Tilisiirto suoritettu ja lukot avattu
+        kulho.juoBooli(this.nimi);
     }
 
 }
 
-/**
- * Pankkitiliä kuvaava luokka
- */
-class Account implements Comparable<Account> {
+class Boolivastaava extends Thread {
 
-    private double balance = 0.0;
-    public final int accountNumber;
+    private Boolikulho kulho;
+    public static String[] booliReseptit = { "Marjabooli", "Simabooli", "Mehukattibooli", "Boolibooli", "Gambinabooli" };
 
-    /**
-     * Pankkitilin konstruktori
-     * @param accountNumber Pankkitilin tilinumero
-     */
-    public Account(int accountNumber) {
-        this.accountNumber = Math.abs(accountNumber);
+
+    public Boolivastaava(Boolikulho kulho) {
+        this.kulho = kulho;
     }
 
-    /**
-     * Nosta rahaa tililtä
-     * @param amount Nostettava rahamäärä
-     */
-    public synchronized void withdraw(double amount) {
-        System.out.printf("Withdrawing %f from %d%n", amount, accountNumber);
-        balance -= amount;
-    }
-
-    /**
-     * Pane rahaa tilille
-     * @param amount Pantava rahamäärä
-     */
-    public synchronized void deposit(double amount) {
-        System.out.printf("Depositing %f to %d%n", amount, accountNumber);
-        balance += amount;
-    }
-
-    /**
-     * Saldotiedustelu
-     * @return Pankkitilin tämänhetkinen saldo
-     */
-    public synchronized double getBalance() {
-        return balance;
-    }
-
-    /**
-     * Vertaile pankkitilejä toisiinsa. Vertailun tulos perustuu tilinumeroon, EI saldoon.
-     * @param other Toinen tili, johon tätä tiliä verrataan
-     * @return -1, 0 tai 1, jos tämän tilin tilinumero on toisen tilin tilinumeroa pienempi, yhtäsuuri tai suurempi
-     */
     @Override
-    public int compareTo(Account other) {
-        if (this.accountNumber == other.accountNumber)
-            return 0;
-        else if (this.accountNumber > other.accountNumber)
-            return 1;
-        else
-            return -1;
-    }
-
+    public void run() {
+        for (String boolinNimi : booliReseptit) {
+            kulho.valmistaBooli(boolinNimi);
+        }
+    };
 }
