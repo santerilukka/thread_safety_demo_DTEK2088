@@ -9,12 +9,17 @@ import java.util.concurrent.TimeUnit;
 public class App4 {
     // Huom! Main-metodiin ei pitäisi tarvita tehdä muutoksia!
     // Main-metodi ainoastaan luo tilit ja alkaa tekemään samanaikaisia tilisiirtoja
+    // sekä lopuksi varmistaa, että laittomuuksia ei tapahtunut
     public static void main(String[] args) {
         System.out.println("Press Ctrl+C to terminate");
         Random rnd = new Random();
 
         // Montako tiliä luodaan
-        int accountCount = 4;
+        int accountCount = 40;
+
+        // Montako tilisiirtoa tehdään
+        int transfers = 100;
+
 
         // Luodaan tilit ja annetaan starttirahaa
         Account[] accounts = new Account[accountCount];
@@ -23,21 +28,44 @@ public class App4 {
             accounts[i].deposit(rnd.nextDouble(500));
         }
         System.out.println("=========== Accounts created ===========");
-        // ExecutorService tilisiirtojen suorittamista varten. Blokkaa, mikäli jono tulee täyteen (estää muistivuodot)
-        ExecutorService transferExecutor = new ThreadPoolExecutor(10,
-                10,
+        // ExecutorService tilisiirtojen suorittamista varten. Blokkaa, mikäli jono tulee täyteen.
+        ExecutorService transferExecutor = new ThreadPoolExecutor(40,
+                40,
                 0L,
                 TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(50),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
         // Tehdään ja suoritetaan tilisiirtotapahtumia niin kauan kunnes ohjelma suljetaan
-        while (true) {
+        for (int i = 0; i < transfers; i++) {
             var from = accounts[rnd.nextInt(accounts.length)];
             var to = accounts[rnd.nextInt(accounts.length)];
             var bt = new BankTransfer(from, to, rnd.nextDouble(500.0));
             transferExecutor.execute(bt);
         }
+
+        /* 
+         * Alapuolella tarkastetaan tilien loppusaldot, jotta
+         * saadaan vihiä ratkaisun toimivuudesta.
+         * Huom! Kilpailutilanteet johtuen luonteestaan,
+         * eivät tapahdu joka ajokerralla.
+         */
+
+         try {
+            transferExecutor.shutdown();
+            transferExecutor.awaitTermination(1, TimeUnit.HOURS);
+        } catch (InterruptedException ie) {
+            System.out.println("Interrupted!");
+        }
+
+        System.out.println("------ KAIKKI TILISIIRROT TEHTY ------");
+        for (int k = 0; k < accounts.length; k++) {
+            if (accounts[k].getBalance() <= 0 || accounts[k].getBalance() > 1000) {
+                System.out.printf("Tilillä %d laiton balanssi: %f %n", accounts[k].accountNumber,
+                        accounts[k].getBalance());
+            }
+        }
+
 
     }
 
@@ -51,6 +79,8 @@ class BankTransfer implements Runnable {
     private Account from;
     private Account to;
     private double amount;
+    private Random rnd;
+
 
     /**
      * 
@@ -62,6 +92,7 @@ class BankTransfer implements Runnable {
         this.from = from;
         this.to = to;
         this.amount = amount;
+        this.rnd = new Random();
     }
 
     /**
@@ -69,26 +100,29 @@ class BankTransfer implements Runnable {
      */
     @Override
     public void run() {
-        // Otetaan säikeen nimi kätevämmän nimiseen muuttujaan
-        var name = Thread.currentThread().getName();
         // Lukitan 1. tili
         synchronized (from) {
             // Lukko ensimmäiseen tiliin saatu, aloitetaan toisen tilin lukitus
-            System.out.printf("%s locked %d, waiting %d%n", name, from.accountNumber, to.accountNumber);
             synchronized (to) {
                 // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja suoritetaan siirto,
                 // jos lakiehdot täyttyvät
-                System.out.printf("%s gained exclusive access to %d and %d%n", name, from.accountNumber,
-                        to.accountNumber);
                 if ((from.getBalance() - amount) > 0 && (to.getBalance() + amount) <= 1000) {
-                    // Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä yli lain rajojen
+                    /*
+                     * Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä
+                     * yli lain rajojen kilpailutilanteen sattuessa. Lukot estävät sen tällä hetkellä.
+                     * Alla oleva sleep tekee kilpailutilanteista todennäköisempiä, siltä varalta,
+                     * että ratkaisunne aiheuttaa niitä. 
+                     * Sleepin poistaminen vähentää kilpailutilanteen riskiä, mutta
+                     * ei silti poista sen teoreettista mahdollisuutta ilmaantua.
+                     */ 
+                    try {Thread.sleep(rnd.nextInt(500));} catch (InterruptedException ie) {}
+                    // Tehdään aktuaalinen tilisiirto
                     from.withdraw(amount);
                     to.deposit(amount);
                 }
             }
         }
         // Tilisiirto suoritettu ja lukot avattu
-        System.out.printf("%s unlocked %d and %d%n", name, from.accountNumber, to.accountNumber);
     }
 
 }
