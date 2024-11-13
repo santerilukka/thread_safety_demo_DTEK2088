@@ -6,6 +6,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * a.
+ * Tilannetta kutsutaan deadlockiksi.
+ * Tilanteessa kumpikaan säie ei voi jatkaa eteenpäin,
+ * koska useampi säie odottaa lukkoja, joita toiset säikeet hallitsevat
+ *
+ * Tässä deadlock voi syntyä, kun useat säikeet yrittävät samanaikaisesti
+ * lukita tilejä ja lukitsemisjärjestys ei ole johdonmukainen.
+ * Tällöin säikeet voivat joutua tilanteeseen, jossa ne
+ * odottavat toisiaan loputtomasti.
+ *
+ * **/
+
 public class App5 {
     // Huom! Main-metodiin ei pitäisi tarvita tehdä muutoksia!
     // Main-metodi ainoastaan luo tilit ja alkaa tekemään samanaikaisia tilisiirtoja
@@ -100,22 +113,23 @@ class BankTransfer implements Runnable {
      */
     @Override
     public void run() {
-        // Lukitan 1. tili
-        synchronized (from) {
-            // Lukko ensimmäiseen tiliin saatu, aloitetaan toisen tilin lukitus
-            synchronized (to) {
+        // Selvitetään kumpi on tilinumeron perusteella pienempi ja lukitaan se
+        Account first, second;
+        if (from.compareTo(to) < 0) {
+            first = from;
+            second = to;
+        } else {
+            first = to;
+            second = from;
+        }
+        // lukitaan tilit
+        synchronized (first) {
+            synchronized (second) {
+                // alkuperäinen logiikka
                 // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja suoritetaan siirto,
                 // jos lakiehdot täyttyvät
                 if ((from.getBalance() - amount) > 0 && (to.getBalance() + amount) <= 1000) {
-                    /*
-                     * Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä
-                     * yli lain rajojen kilpailutilanteen sattuessa. Lukot estävät sen tällä hetkellä.
-                     * Alla oleva sleep tekee kilpailutilanteista todennäköisempiä, siltä varalta,
-                     * että ratkaisunne aiheuttaa niitä. 
-                     * Sleepin poistaminen vähentää kilpailutilanteen riskiä, mutta
-                     * ei silti poista sen teoreettista mahdollisuutta ilmaantua.
-                     */ 
-                    try {Thread.sleep(rnd.nextInt(500));} catch (InterruptedException ie) {}
+                    try { Thread.sleep(rnd.nextInt(500)); } catch (InterruptedException ie) {}
                     // Tehdään aktuaalinen tilisiirto
                     from.withdraw(amount);
                     to.deposit(amount);
@@ -124,7 +138,6 @@ class BankTransfer implements Runnable {
         }
         // Tilisiirto suoritettu ja lukot avattu
     }
-
 }
 
 /**
