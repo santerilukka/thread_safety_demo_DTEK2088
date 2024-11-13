@@ -1,16 +1,18 @@
 package fi.utu.tech.assignment3;
 
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 public class StudyRegistrar extends Thread {
 
-    private List<Submission> submissionQueue;
+    // BlockingQueue
+    private BlockingQueue<Submission> submissionQueue;
     private List<StudyRecord> finalGrades;
     private String courseCode;
 
-    public StudyRegistrar(List<Submission> gradedSubmissions, List<StudyRecord> finalGrades, String courseCode) {
+    public StudyRegistrar(BlockingQueue<Submission> gradedSubmissions, List<StudyRecord> finalGrades, String courseCode) {
         super("RegistrarThread");
-        submissionQueue = gradedSubmissions;
+        this.submissionQueue = gradedSubmissions;
         this.finalGrades = finalGrades;
         this.courseCode = courseCode;
     }
@@ -20,7 +22,7 @@ public class StudyRegistrar extends Thread {
             while (true) {
                 if (interrupted())
                     throw new InterruptedException();
-                var s = submissionQueue.remove(0);
+                var s = submissionQueue.take(); // .take()
                 addToStudyRegistery(s.getGrade(), s.getSubmittedBy());
             }
         } catch (InterruptedException e) {
