@@ -1,35 +1,11 @@
-# Hajautetut järjestelmät demonstraatiokerta 2
+# Thread Safety and Synchronization demonstration exercise for the Distributed Software Systems -course (DTEK2088)
 
-## Tehtävänanto
-Tehtävänanto on saatavissa kohteessa [doc/tehtavananto.md](doc/tehtavananto.md). Lue kuitenkin ensin ohjeet demopohjan käyttämiseksi alapuolelta.
+This Java demonstration project was done as a part of the Distributed Software Systems course. It simulates a grading system where multiple reviewers grade student submissions concurrently.
 
-## Demotehtäväpohjan käyttö
-Koska demotehtäviä ei varsinaisesti palauteta, ei ole väliä, miten demopohjan itselleen hankkii (lataako ZIP-paketin suoraan gitlabista, kloonaako työn suoraan vai forkkaako työn ensin itselleen). Tässä kuitenkin esitetään, miten työ voidaan ensin forkata itselle ja tämän jälkeen kloonata Eclipseen. Myös muiden editorien ja IDE:iden kuin Eclipsen käyttö on toki sallittu.
+Each task focuses on resolving synchronization issues, implementing proper locking, and preventing race conditions to maintain data consistency and system stability.
 
-### Demopohjan kopiointi omalle Gitlab-alueelle
-- Valitse kyseisen viikon demopohjan Gitlab-sivulta toiminto "Fork" (oikea yläkulma)
-- Valitse avautuvasta sivusta kopiointikohteeksi oma Gitlab-alueesi (pitäisi olla oletus)
-- Tämä tekee sinulle oman kopion tehtäväpohjasta omalle Gitlab-alueellesi (eli gitlab.utu.fi/ututunnus) alle
+Each task is done separately and can also be run independently.
 
-### Paikallisen kopion hankkiminen
-Kun sinulla on oma versio harjoitustyöstä GitLabissa, pitää siitä hankkia omalle koneelle työkopio kloonaamalla
+**The solutions** can be found [src/main/java/fi/utu/tech/](src/main/java/fi/utu/tech/) and are named respectively for each assignment. 
 
-#### IntelliJ Idea
-
-IntelliJ Idea ensimmäisellä käynnistyskerralla kysyy Tervetuloa-ikkunassa, mistä projekti haetaan. Tällöin riittää painaa "Get from VCS" (Version Control System eli versionhallinta), jolloin ohjattu toiminne opastaa eteenpäin.
-
-Ohjattuun toiminteeseen pääsee myös päävaikon kautta seuraamalla polkua `≡ > File > New > Project from Version Control...` tai valitsemalla "Get from Version Control" suoraan projektivalikosta.
-
-Tavasta riippumatta lopulta dialogi ohjatulla toiminteella avautuu. URL-kentään laitetaan työn kloonausosoite (HTTPS tai SSH) ja lopuksi napsautetaan `Clone`. Varmista, että versiohallintajärjestelmäksi on valittu **Git**. Idea kyselee, luotetaanko projektiin, johon vastataan myöntävästi.
-
-
-Voit alkaa tekemään tehtäviä tämän jälkeen. **Demokerralla 3** joudutaan suorittamaan kahta sovellusta samaan aikaan (palvelimia ja asiakkaita). Näissä palvelimen voi käynnistää ensin ja sen jälkeen asiakkaan. IntelliJ luo molemmille prosesseille oman konsolin, joiden välillä voi vaihdella välilehtiä käyttäen.
-
-#### Eclipse
-
-Mikäli käyttää Eclipseä kehitystyökaluna, helppo tapa on valita `File > Import... > Git > Projects from Git (with smart import)`. Avautuneesta dialogista valitaan "Clone URI" ja seuraavassa vaiheessa "URI"-kenttään liitetään oman projektikopion kloonausosoite. Eclipse osaa täydentää lähestulkoon kaikki tiedot automaattisesti osoitteesta, käyttäjänimeä ja salasanaa lukuunottamatta (mikäli käyttää HTTPS-osoitetta). Seuraavat vaiheet menevät aika pitkälti oletusasetuksilla. Kloonauksen jälkeen Eclipse osaa "Smart Importin" ansiosta myös automaattisesti tunnistaa, että kloonatussa projektissa oli mukana Maven-konfiguraatio, jonka perusteella mahdollisesti tarvittavat kirjastot ladataan automaattisesti.
-
-Voit alkaa tekemään tehtäviä tämän jälkeen. Eclipse oletuksena käynnistää "Play"-painikkeesta avoinna olevan luokan main-metodin. Voit myös pakottaa tietyn luokan main-metodin suorittamisen avaamalla kyseisen luokan kontekstivalikosta "Run As > Java Application". **Demokerralla 3** joudutaan suorittamaan kahta sovellusta samaan aikaan (palvelimia ja asiakkaita). Näissä palvelimen voi käynnistää ensin ja sen jälkeen asiakkaan. Eclipse luo molemmille prosesseille oman konsolin, joiden välillä voi vaihdella kuvakaappauksen osoittamasta valikosta:
-
-![Konsoli-ikkunoiden vaihtovalikko](doc/consoleswitcher.png)
-
+**The assignment details** are available in Finnish at [doc/tehtavananto.md](doc/tehtavananto.md). 
